@@ -4,18 +4,60 @@
     {
       "parameters": {
         "httpMethod": "POST",
-        "path": "atendente-email-roberta",
+        "path": "atendente-roberta-email",
         "options": {}
       },
       "type": "n8n-nodes-base.webhook",
       "typeVersion": 2.1,
       "position": [
-        48,
-        176
+        -240,
+        256
       ],
-      "id": "2e17b730-592e-4c12-923c-23df24ab50aa",
+      "id": "45687317-1153-43e3-944b-0005d7928b34",
       "name": "Webhook",
       "webhookId": "b83abb1e-17b7-41d4-b70e-9a9c571b2194"
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 1
+          },
+          "conditions": [
+            {
+              "id": "filter-incoming",
+              "leftValue": "={{ $json.body.message_type }}",
+              "rightValue": "incoming",
+              "operator": {
+                "type": "string",
+                "operation": "equals"
+              }
+            },
+            {
+              "id": "filter-not-private",
+              "leftValue": "={{ $json.body.private }}",
+              "rightValue": false,
+              "operator": {
+                "type": "boolean",
+                "operation": "equals"
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.filter",
+      "typeVersion": 2,
+      "position": [
+        -32,
+        256
+      ],
+      "id": "e821ac1b-80b1-4085-8b28-0d13f0b98430",
+      "name": "Filtrar Apenas Mensagens de Entrada"
     },
     {
       "parameters": {
@@ -42,7 +84,7 @@
             {
               "id": "field-004",
               "name": "pergunta_cliente",
-              "value": "={{ $json.body.conversation.messages[0].processed_message_content }}",
+              "value": "={{ $json.body.content }}",
               "type": "string"
             },
             {
@@ -76,10 +118,10 @@
       "type": "n8n-nodes-base.set",
       "typeVersion": 3.4,
       "position": [
-        256,
-        176
+        176,
+        256
       ],
-      "id": "d1e6e07c-4319-4ff9-995b-b23502088de6",
+      "id": "ebdd3d81-395f-4a43-b72d-207f7690ff48",
       "name": "Dados"
     },
     {
@@ -93,10 +135,10 @@
       "type": "@n8n/n8n-nodes-langchain.agent",
       "typeVersion": 3.1,
       "position": [
-        512,
-        176
+        432,
+        256
       ],
-      "id": "5da1573a-1a9e-4222-b1db-1f1716fce538",
+      "id": "bc540e0f-830d-432f-9c7f-54a5266bd372",
       "name": "AI Agent"
     },
     {
@@ -106,10 +148,10 @@
       "type": "@n8n/n8n-nodes-langchain.lmChatGoogleGemini",
       "typeVersion": 1,
       "position": [
-        240,
-        416
+        160,
+        496
       ],
-      "id": "457c5e84-9f31-4654-af79-01a068f09788",
+      "id": "32b61120-9272-402f-8e56-8518f3816185",
       "name": "Google Gemini Chat Model",
       "credentials": {
         "googlePalmApi": {
@@ -128,10 +170,10 @@
       "type": "@n8n/n8n-nodes-langchain.memoryRedisChat",
       "typeVersion": 1.3,
       "position": [
-        432,
-        416
+        352,
+        496
       ],
-      "id": "ac3e138c-3469-4899-bc10-08003b1f9996",
+      "id": "2a3e7faa-df02-4a22-9fed-c1c68e53cc1d",
       "name": "Redis Chat Memory",
       "credentials": {
         "redis": {
@@ -147,10 +189,10 @@
       "type": "@n8n/n8n-nodes-langchain.embeddingsOpenAi",
       "typeVersion": 1.2,
       "position": [
-        944,
-        496
+        864,
+        576
       ],
-      "id": "a2969ada-578e-45f8-8f4e-a4f1c211ca9c",
+      "id": "6d4be0a7-98a1-4e73-809e-5638324c885c",
       "name": "Embeddings OpenAI",
       "credentials": {
         "openAiApi": {
@@ -174,10 +216,10 @@
       "type": "@n8n/n8n-nodes-langchain.vectorStoreSupabase",
       "typeVersion": 1.3,
       "position": [
-        752,
-        336
+        672,
+        416
       ],
-      "id": "caff9dc5-16d9-4543-b8ed-b0284e2e2dfa",
+      "id": "18ba8226-3c67-4584-8596-1a8a31ed1c08",
       "name": "busca_estoque_ze_do_rolo",
       "credentials": {
         "supabaseApi": {
@@ -201,10 +243,10 @@
       "type": "n8n-nodes-base.httpRequestTool",
       "typeVersion": 4.3,
       "position": [
-        608,
-        416
+        528,
+        496
       ],
-      "id": "42f52e2e-1cde-4449-bf6d-ec1e7bc7c892",
+      "id": "8fb326c5-7118-4d69-b7e4-3f57733411cb",
       "name": "faq_perguntas_frequentes",
       "credentials": {
         "httpQueryAuth": {
@@ -218,7 +260,7 @@
         "fromEmail": "contato@zedorolo.com.br",
         "toEmail": "={{ $('Dados').item.json.cliente_email }}",
         "subject": "={{ $('Dados').item.json.assunto }}",
-        "html": "={{ $json.output }}",
+        "html": "=={{ $('AI Agent').item.json.output }}",
         "options": {
           "appendAttribution": false
         }
@@ -226,12 +268,12 @@
       "type": "n8n-nodes-base.emailSend",
       "typeVersion": 2.1,
       "position": [
-        1184,
-        48
+        1104,
+        128
       ],
-      "id": "e59c432c-6968-44e1-9df5-00023b521667",
+      "id": "80ec6fe7-47a3-4fdf-ab95-9c6b5b2bb9c7",
       "name": "Enviar Email",
-      "webhookId": "3cd234fa-e4a2-499d-8b44-4d7f19167cd5",
+      "webhookId": "f012cda1-4c8a-4d8e-9301-5abaaa5319b2",
       "credentials": {
         "smtp": {
           "id": "yz0Q1AZIv3vgXDTo",
@@ -244,7 +286,7 @@
         "assignments": {
           "assignments": [
             {
-              "id": "clean-output-001",
+              "id": "clean-001",
               "name": "output_limpo",
               "value": "={{ $json.output.replace(/<\\/p>/g, '\\n\\n').replace(/<br\\s*\\/?>/g, '\\n').replace(/<\\/li>/g, '\\n').replace(/<li>/g, '• ').replace(/<[^>]+>/g, '').replace(/&nbsp;/g, ' ').replace(/\\n{3,}/g, '\\n\\n').trim() }}",
               "type": "string"
@@ -256,10 +298,10 @@
       "type": "n8n-nodes-base.set",
       "typeVersion": 3.4,
       "position": [
-        976,
-        176
+        896,
+        256
       ],
-      "id": "ee5ddc9b-b3fb-4ff7-a1e8-f48a69a5546a",
+      "id": "76ccede1-f05b-447d-9167-ab9644323961",
       "name": "Limpar HTML"
     },
     {
@@ -273,7 +315,7 @@
           "parameters": [
             {
               "name": "content",
-              "value": "=={{ $('Limpar HTML').item.json.output_limpo }}"
+              "value": "={{ $('Limpar HTML').item.json.output_limpo }}"
             },
             {
               "name": "message_type",
@@ -290,10 +332,10 @@
       "type": "n8n-nodes-base.httpRequest",
       "typeVersion": 4.2,
       "position": [
-        1184,
-        272
+        1104,
+        352
       ],
-      "id": "ee4e5858-7946-429b-bf65-cf8b3c939b82",
+      "id": "c4014279-c0c7-4b00-a5ae-ee0446f9a946",
       "name": "Enviar Mensagem ChatWoot",
       "credentials": {
         "chatwootApi": {
@@ -304,24 +346,35 @@
     },
     {
       "parameters": {
-        "content": "## ATENDENTE EMAIL\n## Roberta\n## Consultora Técnica Sênior\n\n✅ Redis Memory para contexto\n✅ Email via SMTP\n✅ Espelhamento no ChatWoot (privado)\n✅ HTML limpo no ChatWoot",
-        "height": 752,
-        "width": 1472,
+        "content": "## ATENDENTE EMAIL \n## Roberta - Consultora Técnica Sênior\n\n🛡️ FILTRO ANTI-LOOP:\n- Só processa mensagens INCOMING\n- Ignora mensagens OUTGOING (evita loop)\n- Ignora mensagens PRIVATE\n\n✅ Redis Memory\n✅ Email via SMTP\n✅ ChatWoot (texto limpo)\n✅ Nome correto do cliente",
+        "height": 832,
+        "width": 1776,
         "color": 5
       },
       "type": "n8n-nodes-base.stickyNote",
       "position": [
-        -48,
+        -352,
         -80
       ],
       "typeVersion": 1,
-      "id": "7b051b53-e773-4fa6-9f22-fb92b0ec1b90",
+      "id": "979e45ac-3855-4c06-808a-06a005219247",
       "name": "Sticky Note"
     }
   ],
   "pinData": {},
   "connections": {
     "Webhook": {
+      "main": [
+        [
+          {
+            "node": "Filtrar Apenas Mensagens de Entrada",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Filtrar Apenas Mensagens de Entrada": {
       "main": [
         [
           {
@@ -432,11 +485,10 @@
     "binaryMode": "separate",
     "availableInMCP": false
   },
-  "versionId": "aa3f16ab-adf0-4dbd-85af-2cc10c55eca8",
+  "versionId": "8d38bfc8-d26a-4299-adcb-1b1436eae88f",
   "meta": {
-    "templateCredsSetupCompleted": true,
     "instanceId": "16d93e8900b188aa34fdc22f7816238195e0bc8f8fe1011e65e15f7a74b2cec0"
   },
-  "id": "QqKv0OMYfUHFqIuI",
+  "id": "TKOdDa3eGQZIJVGG",
   "tags": []
 }
